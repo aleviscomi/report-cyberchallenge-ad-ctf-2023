@@ -46,13 +46,13 @@ Per rompere la funzione di login, quindi, sarebbe bastato inviare una password v
 
 ![gabibbi 2](imgs/gabibbi2.png)
 
-####Exploit
+#### Exploit
 Quando è stato scritto l'exploit, tuttavia, si è pensato che una password vuota sarebbe stata l'attacco più ovvio (troppo facile da patchare).
 Si è deciso, quindi, di provare ad indovinare il primo carattere della password, per non ricadere nel caso banale. Indovinare, in informatica, significa bruteforce:
 
 ![gabibbi 2](imgs/gabibbi2_exploit.png)
 
-####Patch
+#### Patch
 La patch per questo servizio prevede che la comparazione non sia fatta sui primi n caratteri della stringa ma su tutta la stringa. Bisogna quindi sostituire strlen(pass) con strlen(user.password)
 
 
