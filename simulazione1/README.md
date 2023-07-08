@@ -1,4 +1,4 @@
-##MOOZ
+## MOOZ
 
 Mooz è una piattaforma per lo scambio di messaggi. 
 Un utente può:
@@ -21,6 +21,7 @@ La patch trovata prevedeva di inserire un valore errato molto alto in /get_publi
 
 ## CCMarket
 ![Gatto carino](img/logo.png)
+
 CCMarket è una challenge di pwn. In CCmarket dopo aver fatto l'accesso si ha disposizione una quota di soldi per acquistare oggetti e si può scegliere se accettare gli oggetti sul mercato oppure se creare oggetti da mettere sul mercato. Se acquistiamo gli oggetti forniti nei flagID si ottengono le flag, ovviamente non abbiamo a disposizione abbastanza soldi per acquistare i flagID, dato che il loro prezzo è MAX_INT di C. 
 
 
