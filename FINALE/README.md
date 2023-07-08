@@ -24,7 +24,7 @@ al momento del freeze della classifica (-2 ore), solo 1 team (su 42) era riuscit
 
 Al termine della gara questi risultati non sono variati di molto (4 attaccanti per CheesyCheats-1, 7 per CheesyCheats-2 e 6 per GabibbiTowers-1).
 
-## GabbiTowers
+## GabibbiTowers
 _Categoria: crypto_
 
 Gabibbi Tower è una piattaforma di gioco con ricompense.
