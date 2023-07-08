@@ -1,4 +1,5 @@
 ## TiCCket 
+
 ![Gatto carino](img/primo.png)
 
 TiCCket è una sfidata della categoria pwn. E' un servizio
@@ -9,21 +10,22 @@ Ma si possono sfruttare le vulnerabilità per fingersi l'admin.
 
 ### Vulnerabilità 1- Carattere letto in più 
 La vulnerabilità si trova all'interno di questa funzione: 
+
 ![Gatto carino](img/vuln.png)
 
 Il problema è in questa riga:
 
-![Gatto carinp](img/riga.png)
+![Gatto carino](img/riga.png)
 
 Dato che il **g_admin_token** è in realtà lungo 17 char, si fa un BSS overflow andando a sovrascrivere la variabile globale **g_is_restricted** cambiandogli valore con un valore che sarà interpretato come false, dato che questa variabile se è messa a true indica che non si è un admin, se è messa a false indica che si è un admin.
 
 Il codice dell'exploit è così semplice da comprendere, oltre a tutte le operazioni da fare per navigare all'interno del menù, la riga seguente esegue il BSS overflow dato che passa 20 caretteri invece che 17:
 
-![Gatto carinp](img/BSS.png)
+![Gatto carino](img/BSS.png)
 
 Il codice completo:
 
-![Gatto carinp](img/e.png)
+![Gatto carino](img/e.png)
 
 
 

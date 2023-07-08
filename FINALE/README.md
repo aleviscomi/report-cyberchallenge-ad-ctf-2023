@@ -2,7 +2,7 @@
 
 La gara nazionale di CyberChallengeIT svolta il 29/06/2023 al campus ILO di Torino ha visto la presenza di 4 servizi sviluppati che mettevano a disposizione 7 flag stores differenti (alcuni servizi avevano più di un flag store, al contrario di tutte le edizioni precedenti in cui si aveva un solo flag store per ogni servizio per un totale di soli 4 flag stores).
 
-I servizi - che proponevano challenge relative alle categorie _web_, _crypto_ e _binary_ - erano i seguenti:
+I servizi - che proponevano challenge relative alle categorie _web_, _crypto_ e _pwn_ - erano i seguenti:
 * CheesyCheats (2 flag stores);
 * Gabibbi Towers (2 flag stores);
 * GadgetHorse (2 flag stores);
@@ -56,7 +56,8 @@ Si è deciso, quindi, di provare ad indovinare il primo carattere della password
 La patch per questo servizio prevede che la comparazione non sia fatta sui primi n caratteri della stringa ma su tutta la stringa. Bisogna quindi sostituire strlen(pass) con strlen(user.password)
 
 
-## GadgetHorse-1
+## GadgetHorse
+_Categoria: web_
 
 GadgetHorse è un'applicazione web, sviluppata col framework SvelteKit, che funge da e-commerce di sticker e magliette con stampe. 
 
@@ -64,13 +65,15 @@ GadgetHorse è un'applicazione web, sviluppata col framework SvelteKit, che fung
 
 Essa mette a disposizione alcune funzionalità come registrazione e login di utenti, acquisto di sticker predefiniti e creazione e acquisto di sticker e maglie personalizzate.
 
-### Vulnerabilità - Unsigned Cookie
+### GadgetHorse-1
+
+#### Vulnerabilità - Unsigned Cookie
 
 Questo primo flag store relativo a GadgetHorse, soffre di una vulnerabilità relativa al cookie del carrello. Lo stato del carrello veniva infatti memorizzato all'interno di un json, a sua volta salvato in un cookie che però non era firmato. Esso veniva solamente codificato in base64.
 
 ![alt text](imgs/gh1-cartcookie.png)
 
-### Exploit
+#### Exploit
 
 L'exploit costruito consisteva quindi nel creare un cookie custom del carrello inserendo un particolare id e trovando la flag nel prodotto - relativo a questo id - inserito nel carrello. Di seguito vediamo l'exploit nel dettaglio.
 
@@ -90,7 +93,7 @@ a questo punto bastava fare una richiesta all'endpoint "/cart" con i cookies rel
 
 ![alt text](imgs/gh_flag.png)
 
-### Patch
+#### Patch
 
 Per fixare questa vulnerabilità la soluzione ideale sarebbe stata quella di firmare il cookie del carrello. Tuttavia, per questioni di semplicità e velocità, (necessarie in questo tipo di competizione), la patch adottata è stata molto più semplice ma comunque altamente efficace. 
 
@@ -99,9 +102,36 @@ La soluzione attuata infatti prevedeva di rinominare il nome del cookie da "cart
 ![alt text](imgs/gh1_patch.png)
 
 
-## GadgetHorse-2
+### GadgetHorse-2
+
+#### Vulnerabilità - IDOR in SvelteKit endpoint
+
+Per rendere più veloce il caricamento di alcuni dati, SvelteKit fornisce un endpoint aggiuntivo raggiungibile con *__data.json*. Questo però è un problema perché rende l'applicazione vulnerabile ad IDOR (Insecure Direct Object References). Infatti, ciò fa in modo che l'applicazione utilizzi l'input fornito dall'utente per accedere direttamente agli oggetti.
+
+#### Exploit
+
+Sfruttando la vulnerabilità descritta è quindi stato possibile costruire l'exploit. Infatti, accedendo all'endpoint *"/order/\<productId\>/__data.json"*, veniva restituito un oggetto json che conteneva alcune informazioni, tra cui anche un indirizzo. All'interno di questo indirizzo c'era appunto la flag.
+
+Per quanto riguarda i dettagli dell'exploit, possiamo notare che, anche qui, per generare disturbi agli altri teams è stata fatta la registrazione di un utente casuale:
+
+![alt text](imgs/gh2_register.png)
+
+In seguito, è stata fatta la richiesta all'endpoint summenzionato, inserendo come productId, quello estrapolato dal flagId corrente. Inoltre, per generare altro "rumore", è stato utilizzato anche un cookie non necessario contenente il carrello *[{"qty":1,"id":"cyberchallenge"}]*.
+
+![alt text](imgs/gh2-flag.png)
+
+#### Patch
+
+Per fixare questa vulnerabilità, l'idea è stata quella di andare a rimuovere la possibilità di utilizzare l'endpoint relativo a *__data.json*. Per fare ciò è bastato aggiungere nella cartella _src_ un file denominato _hooks.server.js_ con il seguente contenuto:
+
+![alt text](imgs/gh2-patch.png)
+
+Ciò è servito per restituire risposte con codice 400 (Bad Request) ad ogni richiesta di tipo "data", cioè ogni richiesta verso questo endpoint.
+
 
 ## MineCClicker
+_Categoria: pwn_
+
 MineCClicker è una challenge della categoria pwn. E' una versione di prato fiorito. Viene fornito tramite un binario in C che rappresenta i server e un client scritto in Python. Il  servizio permetteva di fare le seguenti operazioni:
 
 - Registrarsi e fare il login.
@@ -125,15 +155,17 @@ Durante una partita, quando un utente trova la disposizione corretta delle bombe
 
 Le flag sono memorizzate nel campo segreto di alcune board specifiche, create dal verificatore.
 
-# Vulnerabilità - Giocare per sempre
+#### Vulnerabilità - Giocare per sempre
 Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false.
 
-Le exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
+#### Exploit
+
+L'exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
 - Scoprire celle casuali fino a trovare una bomba
 - Leggere la disposizione delle bombe
 - Inviare l'intera disposizione delle bombe al server e vincere la partita.
 
-La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecit al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
+La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecita al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
 
 ![Gatto carino](imgs/exploit.png)
 
@@ -177,22 +209,11 @@ Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere 
 
 Per avviare l'exploit c'è bisogno di tutta la cartella client dato che utilizza le classi di utilità fornite per il client Python.
 
-# Patch
+#### Patch
 
 Modificare il binario per reimpostare correttamente la variabile globale g_is_playing su false all'interno della funzione uncover, nel caso in cui si becca una.
 
 ![Gatto carino](imgs/patch.png)
-
-
-
-
-
-
-
-
-
-
-
 
 
 ## CheesyCheats
