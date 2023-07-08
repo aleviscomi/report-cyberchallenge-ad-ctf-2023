@@ -1,3 +1,24 @@
+##MOOZ
+
+Mooz è una piattaforma per lo scambio di messaggi. 
+Un utente può:
+* Registrarsi
+* Effettuare il login
+* Inviare/Ricevere un messaggio
+* Visualizzare i messaggi inviati (anche relativamente ad un solo utente)
+
+### Exploit 
+
+La flag da trovare era nascosta in un messaggio cifrato inviato da un utente A ad un utente B (entrambi ricavabili da flagIds).
+La piattaforma, però, permetteva di ricavare il messaggio tramite un identificativo. Il messaggio era cifrato utilizzando DES.
+La vulnerabilità consiste nel non aver nascosto a dovere i dati per la generazione delle chiavi degli utenti per cui, risolvendo il problema del logaritmo discreto e compiendo qualche operazione complementare, si è riusciti a calcolare la chiave di sessione e decifrare il messaggio.
+
+![Gatto carino](img/Mooz.png)
+
+### Patch
+
+La patch trovata prevedeva di inserire un valore errato molto alto in /get_public. In questo modo, non solo non si esponevano informazioni importanti, ma si potevano anche far bloccare gli script avversari più deboli.
+
 ## CCMarket
 ![Gatto carino](img/logo.png)
 CCMarket è una challenge di pwn. In CCmarket dopo aver fatto l'accesso si ha disposizione una quota di soldi per acquistare oggetti e si può scegliere se accettare gli oggetti sul mercato oppure se creare oggetti da mettere sul mercato. Se acquistiamo gli oggetti forniti nei flagID si ottengono le flag, ovviamente non abbiamo a disposizione abbastanza soldi per acquistare i flagID, dato che il loro prezzo è MAX_INT di C. 
