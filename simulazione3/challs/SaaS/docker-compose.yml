@@ -1,0 +1,29 @@
+version: '2.1'
+services:
+  saas:
+    build: .
+    ports:
+      - 5555:5555
+    command: bash -c "python3 app.py install; /usr/bin/supervisord"
+    environment:
+      enviroment: prod
+      SECRET_KEY: 1491f55f179f5a02169ddfc20aefe41e
+      DBHOST: saas-db
+      DBSCHEMA: saas
+      DBPASS: 5fef069cc1c
+      PROXY_HOST: localhost
+      PROXY_PORT: 8000
+    depends_on:
+      saas-db:
+        condition: service_healthy
+
+  saas-db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: '5fef069cc1c'
+      MYSQL_DATABASE: saas
+    command: ['--datadir', '/var/lib/mysql-no-volume']
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10

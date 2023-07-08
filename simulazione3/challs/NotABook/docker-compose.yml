@@ -1,0 +1,9 @@
+version: '2.1'
+
+services:
+  notabook:
+    build: .
+    environment:
+      - SECRET_KEY
+    ports:
+      - '1234:1234'

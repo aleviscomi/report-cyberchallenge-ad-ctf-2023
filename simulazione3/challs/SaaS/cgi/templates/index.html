@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+
+{% block body %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Shellcode as a Service</h4>
+                </div>
+                <div class="card-body">
+
+                    <div>Shellcode-as-a-Service (SaaS©) is a new enterprise service designed for new pwners and
+                        reversers who don't want to setup their CTF environment at every competition.
+                    </div>
+
+                    <div class="my-1">With our cloud service you can:
+                    </div>
+
+                    <ul class="my-1">
+                        <li>create new users</li>
+                        <li>create new projects</li>
+                        <li>upload new shellcodes</li>
+                        <li>search for previously uploaded shellcodes</li>
+                        <li>look at the disassembled shellcodes</li>
+                        <li>execute shellcodes in a <i>restricted</i> sandbox</li>
+                    </ul>
+
+
+
+                    <div class="mt-3 text-center">
+                        {% if g.logged %}
+                        <a class="btn btn-md px-3" href="/projects">See your projects!</a>
+                        {% else %}
+                        <a class="btn btn-md px-3" href="/login">Sign in </a>
+                        <a class="btn btn-md px-3" href="/register">Register</a>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

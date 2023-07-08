@@ -1,0 +1,28 @@
+version: '3.8'
+
+#TODO: Write docker-compose
+services:
+  service:
+    build: ./fixme
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=fixme
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - GIFT_CARD_SECRET=secret
+      - ADMIN_PASSWORD
+    ports:
+      - 8080:8080
+
+  postgres:
+    build: ./database
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

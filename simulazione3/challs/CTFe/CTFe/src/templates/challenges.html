@@ -1,0 +1,47 @@
+{% from 'bootstrap/form.html' import render_form %}
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="bg-blue-light py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+        <h1 class="text-white text-center"><i class="fas fa-fw fa-flag"></i> Challenges </h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-4">
+      <div class="card w-100">
+        <img src="attachment/cat-roulette.gif" class="card-img-top" alt="Cat roulette">
+        <div class="card-body">
+          <h3 class="card-title">Cat roulette</h3>
+          <hr class="my-2" />
+          <span class="badge badge-warning"><i class="fas fa-fw fa-dice"></i> guessing</span>
+          <hr class="my-2" />
+          <p class="card-text mt-1">The only non-web challenge in which you get the flag by guessing the right thing!
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4 mt-3 mt-md-0">
+      <div class="card w-100">
+        <img src="attachment/cat-note.gif" class="card-img-top" alt="Cat roulette">
+        <div class="card-body">
+          <h3 class="card-title">NotEBook</h3>
+          <hr class="my-2" />
+          <span class="badge badge-warning"><i class="fas fa-trash"></i> <span class="text-red">c</span>heap exploitation</span>
+          <hr class="my-2" />
+          <p class="card-text mt-1">We all like PHP-based pwn challenges, We don't like NotABook challenge.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

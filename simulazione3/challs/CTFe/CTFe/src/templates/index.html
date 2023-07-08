@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+{% from 'bootstrap/utils.html' import render_icon %}
+
+{% block body %}
+
+<div class="bg-blue-light py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 text-center">
+        <img src="attachment/ctfe.png" class="w-75" />
+        <h3 class="text-center text-white mt-3">Cyber Security Training made harder</h3>
+        <h5 class="text-center text-white mt-1">With the worst Capture The Flag platform</h5>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 text-center">
+
+      <h1 class="text-center text-red">
+        CTFe A/D - Rules
+      </h1>
+
+      <ul class="mt-3 text-left">
+        <li>CTFe is a <del>(not-so-)</del>standard A/D competition</li>
+        <li>Competition will be held on June 7th 2021 from 10:00 to 18:00 CEST</li>
+        <li>Registration is open to everyone (even during the competition)</li>
+        <li>Flag format: <code>FKE\{[0-9a-z]{32}\}</code></li>
+        <li>Flags are valid for 5 ticks</li>
+        <li>Each tick lasts for how long the game system decides ¯\_(ツ)_/¯</li>
+        <li>Attacking the infrastructure is <b>strictly obligatory</b></li>
+        <li>You can even patch the challenges!</li>
+      </ul>
+      {% for ctf in running_ctfs %}
+      <div class="row">
+        <div class="col-sm">
+          CTF Name
+        </div>
+        <div class="col-sm">
+          Is running
+        </div>
+        <div class="col-sm">
+          <a href="{{url_for('join', ctfid=ctf.id)}}">{{render_icon('plus-circle')}}</a>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

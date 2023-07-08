@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  weirdcpu:
+    build: .
+    environment:
+      - FPGA_SERVICE_ADDRESS
+      - FPGA_TEAM_TOKEN
+    ports:
+      - '5000:80'

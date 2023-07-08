@@ -1,0 +1,22 @@
+{% from 'bootstrap/form.html' import render_form %}
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Register a new user</h4>
+                </div>
+                <div class="card-body">
+                    {{ render_form(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

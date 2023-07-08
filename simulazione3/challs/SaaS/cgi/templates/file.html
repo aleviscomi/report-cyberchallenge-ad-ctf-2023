@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{file.filename}}</h4>
+                </div>
+                <div class="card-body">
+
+                    <pre class="my-2"><code class="language-x86asm">{{file.disass}}</code></pre>
+
+                    <a class="btn"
+                        href="{{url_for('interface.download', uid=g.project.project_id, file_uid=file.uid)}}">
+                        Download
+                    </a>
+
+                    <a class="btn float-right" href="/sandbox/{{g.project.project_id}}/{{file.filename}}">
+                        Execute shellcode!
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/languages/x86asm.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+{% endblock %}

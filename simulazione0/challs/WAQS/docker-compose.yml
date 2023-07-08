@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  waqs:
+    build: .
+    ports:
+      - "0.0.0.0:12345:12345"
+    entrypoint: '/usr/bin/nohup socat -d -d -s -t 60 -T 60 TCP4-LISTEN:12345,fork,reuseaddr EXEC:"timeout 30 /WAQS"'
+    restart: unless-stopped
+    networks:
+      default:
+      db:
+        ipv4_address: 172.31.0.10
+
+  db:
+    image: postgres:12.4
+    environment:
+      POSTGRES_PASSWORD: debug
+      POSTGRES_DB: air_quality_db
+    volumes:
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./db-dir:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - db
+
+networks:
+  db:
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16

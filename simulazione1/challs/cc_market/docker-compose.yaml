@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  cc_market:
+    build: .
+    ports:
+      - "0.0.0.0:1337:1337"
+    entrypoint: 'socaz --bind 1337 -t 300 --cmd /chall/cc_market'
+    restart: unless-stopped

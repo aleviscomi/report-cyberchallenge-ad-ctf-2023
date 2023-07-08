@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  capp:
+    build: CApp
+    environment:
+      SECRET: "${SECRET_FLASK}"
+      DBHOST: db
+      DBUSER: root
+      DBPASS: "${DB_PASS}"
+      DBSCHEMA: CApp
+    ports:
+      - "0.0.0.0:80:80"
+    command: bash -c "chgrp web /opt/volumes && chmod g+w /opt/volumes && /usr/bin/supervisord"
+    depends_on:
+      - db
+    volumes:
+      - "./volumes:/opt/volumes"
+    restart: unless-stopped
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASS}"
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+      

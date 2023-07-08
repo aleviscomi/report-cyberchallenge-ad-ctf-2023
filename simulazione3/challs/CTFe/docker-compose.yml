@@ -1,0 +1,29 @@
+version: '2.1'
+services:
+  ctfe:
+    build: CTFe/
+    ports:
+      - 80:80       # scoreboard
+      - 5005:5005   # roulette
+      - 5006:5006   # notekeep
+    command: bash -c "python3 app.py install && /usr/bin/supervisord"
+    environment:
+      - enviroment=prod
+      - SECRET_KEY="${SECRET_FLASK}"
+      - DBHOST=ctfe-db
+      - DBSCHEMA=ctfe
+      - DBPASS=A1D4BDC440126220F7B9887D5DEE68F6
+    depends_on:
+      ctfe-db:
+        condition: service_healthy
+    
+  ctfe-db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: A1D4BDC440126220F7B9887D5DEE68F6
+      MYSQL_DATABASE: ctfe
+    command: ["--datadir", "/var/lib/mysql-no-volume"]
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10

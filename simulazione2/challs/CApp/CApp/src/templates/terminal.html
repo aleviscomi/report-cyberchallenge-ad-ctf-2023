@@ -1,0 +1,77 @@
+{% extends 'base.html' %} {% block content %}
+
+<div id="terminal"></div>
+
+<script>
+  const banner = `     ::::::::   ::::::::   ::::::::   ::::::::  
+\r    :+:    :+: :+:    :+: :+:    :+: :+:    :+: 
+\r    +:+        +:+        +:+    +:+ +:+        
+\r    +#+        +#+        +#+    +:+ +#++:++#++ 
+\r    +#+        +#+        +#+    +#+        +#+ 
+\r    #+#    #+# #+#    #+# #+#    #+# #+#    #+# 
+\r     ########   ########   ########   ######## `;
+
+  const term = new Terminal();
+  term.open(document.getElementById('terminal'));
+  term.write(banner);
+  term.write('\n\r\n\r');
+  term.write(
+    'Welcome to ccOS 1.0! (GNU/Python 3.10-CApp)\n\r\nLast login: idk (buy our enterprise solution for this feature)\r\n'
+  );
+  term.write('\n\n$ ');
+
+  var buffer = '';
+
+  term.onKey((e) => {
+    const key = e.key;
+    console.log(key);
+
+    switch (key) {
+      case '\x7f':
+        if (buffer != '') {
+          buffer = buffer.slice(0, -1);
+          term.write('\b \b');
+        }
+        break;
+
+      case '\r':
+      case '\n':
+        if (buffer == 'clear') {
+          term.clear();
+          buffer = '';
+          term.write('\x1b[2K\r$');
+          break;
+        }
+        fetch('/command', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ command: buffer })
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            term.write('\n\r');
+            console.log(data);
+            if (data['output'] != null && data['output'] != '') {
+              term.write(data['output']);
+              term.write('\n\r');
+            }
+            term.write('$ ');
+          })
+          .catch(() => {
+            term.write('\n\rSegmentation Fault\n\r$ ');
+          });
+        buffer = '';
+        break;
+      default:
+        buffer += key;
+        term.write(key);
+    }
+  });
+  parent.addEventListener('wheel', (e) => {
+    term.scrollLines(Math.round(e.deltaY / 10));
+  });
+</script>
+{% endblock %}

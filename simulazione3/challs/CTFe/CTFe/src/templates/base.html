@@ -1,0 +1,127 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" 
+    type="image/png" 
+    href="/attachment/favicon.png">
+
+    {% block styles %}
+    <!-- Bootstrap CSS -->
+    {{ bootstrap.load_css() }}
+    {% endblock %}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Quicksand:300,400,500,600,700" />
+    <link rel="stylesheet" type="text/css" href="attachment/styles.css">
+
+    <title>CTFe: The buggiest Capture The Flag Platform</title>
+    {% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-xl bg-blue text-white justify-content-between">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/">
+                <img src="attachment/ctfe.png" alt="" height=30>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto mb-2 mb-xl-0">
+
+                    <a class="p-2 nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                    <a class="p-2 nav-link" href="/training"><i class="fas fa-university"></i> Training</a>
+                    <a class="p-2 nav-link" href="/scoreboard"><i class="fas fa-fw fa-list-ol"></i> Scoreboard</a>
+                    <a class="p-2 nav-link" href="/challenges"><i class="fas fa-fw fa-flag"></i> Challenges</a>
+
+                    {% if g.logged %}
+
+                    <a class="p-2 nav-link" href="/attack"><i class="fas fa-fw fa-fire-alt"></i> Attack</a>
+                    <a class="p-2 nav-link" href="/submit"><i class="fas fa-fw fa-upload"></i> Submit a flag</a>
+
+                    {% else %}
+                    {% endif %}
+
+                </ul>
+                <ul class="navbar-nav d-flex">
+
+
+                    <li class="mx-1 my-1 my-xl-0">
+                        <a type="button" class="btn btn-warning btn-sm font-weight-bold" href="#">
+                            <i class="fas fa-fw fa-flag-checkered"></i> Tick #{{g.tick}}
+                        </a>
+                    </li>
+
+                    {% if g.logged %}
+                    <li class="mx-1 my-1 my-xl-0">
+                        <a type="button" class="btn btn-info btn-sm font-weight-bold" href="#">
+                            <i class="fas fa-fw fa-user"></i> {{g.user.team_name}}
+                        </a>
+                    </li>
+                    <li class="mx-1 my-1 my-xl-0">
+                        <a type="button" class="btn btn-danger btn-sm font-weight-bold" href="/logout">
+                            <span>Logout</span>
+                            <i class="fas fa-fw fa-sign-in-alt"></i>
+                        </a>
+                    </li>
+                    {% else %}
+
+                    <li class="mx-1 my-1 my-xl-0">
+                        <a type="button" class="btn btn-success btn-sm font-weight-bold" href="/login">
+                            <i class="fas fa-fw fa-sign-in-alt"></i>
+                            <span>Sign In</span>
+                        </a>
+                    </li>
+
+                    <li class="mx-1 my-1 my-xl-0">
+                        <a type="button" class="btn btn-info btn-sm font-weight-bold" href="/register">
+                            <i class="fas fa-fw fa-user-plus"></i>
+                            <span>Sign up</span>
+                        </a>
+                    </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </div>
+    </nav>
+
+    <div class="w-75 m-auto">
+        {{ render_messages() }}
+    </div>
+
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <div class="bg-blue-light py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8 text-center">
+                    <h5 class="text-center text-white">CTFe A/D powered by the CyberChallenge.IT trolling team</h5>
+                    <img src="attachment/meme.jpg" class="w-75 mt-3" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block scripts %}
+    {{ bootstrap.load_js() }}
+    {% endblock %}
+
+</body>
+
+</html>

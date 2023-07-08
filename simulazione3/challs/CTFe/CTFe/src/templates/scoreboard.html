@@ -1,0 +1,52 @@
+{% from 'bootstrap/form.html' import render_form %}
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="bg-blue-light py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+        <h1 class="text-white text-center"><i class="fas fa-fw fa-list-ol"></i> Scoreboard </h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 text-center">
+
+      <div class="table-responsive">
+        <table class="m-0 text-nowrap table table-striped table-bordered table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Team</th>
+              <th scope="col">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for team in teams %}
+            <tr>
+              <th scope="row">
+                {{loop.index}}
+              </th>
+              <td id="username">
+                {{team.team_name}}
+              </td>
+              <td id="points">
+                {{team.points}}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

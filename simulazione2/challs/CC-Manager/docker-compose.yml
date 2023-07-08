@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  cc_manager:
+    build: .
+    container_name: "cc_manager"
+    ports:
+      - "0.0.0.0:5000:3000"
+    restart: unless-stopped

@@ -1,0 +1,83 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% block styles %}
+    {{ bootstrap.load_css() }}
+    {% endblock %}
+
+    <link rel="stylesheet" type="text/css" href="https://alexbsoft.github.io/win95.css/assets/win95.css" />
+    <link rel="icon" type="image/png" href="/static/computer.png" />
+
+    <title>SaaS - Shellcode-as-a-Service</title>
+    {% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-95 navbar-expand-xl justify-content-between">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/">
+                SaaS
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto mb-2 mb-xl-0">
+                    {{ render_nav_item('interface.index', 'Home') }}
+                    {% if g.logged %}
+                    {{ render_nav_item('interface.projects', 'Projects') }}
+                    {% else %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav d-flex">
+                    {% if g.logged %}
+                    <li class="mx-1 my-1 my-xl-0">
+                        {{ render_nav_item('interface.logout', 'Sign out') }}
+                    </li>
+                    {% else %}
+                    <li class="mx-1 my-1 my-xl-0">
+                        {{ render_nav_item('interface.login', 'Sign In') }}
+                    </li>
+                    <li class="mx-1 my-1 my-xl-0">
+                        {{ render_nav_item('interface.register', 'Register') }}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+    </nav>
+
+    <div class="w-75 m-auto py-3">
+        {{ render_messages() }}
+    </div>
+
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer class="taskbar">
+        <div class="row mr-0">
+            <div class="col-8">
+
+            </div>
+            <div class="col-4 time">By CyberClippy.IT</div>
+        </div>
+    </footer>
+
+    {% block scripts %}
+    {{ bootstrap.load_js() }}
+    {% endblock %}
+
+</body>
+
+</html>

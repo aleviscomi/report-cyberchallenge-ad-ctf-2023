@@ -1,0 +1,13 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - 80:80
+      - 443:443

@@ -1,0 +1,37 @@
+{% from 'bootstrap/form.html' import render_form %}
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="bg-blue-light py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <h1 class="text-white text-center"><i class="fas fa-fw fa-fire-alt"></i> Start a service! </h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 text-center">
+            {{ render_form(form) }}
+        </div>
+    </div>
+    {% if service %}
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-12 col-lg-8 text-center">
+            <div class="alert alert-info" role="alert">
+                <p>Service started! Connect with:</p>
+                <p><code>nc {{host}} {% if service.service == 1 %}5005{% else %} 5006 {% endif %}</code></p>
+                <p>Your token is: <code>{{service.id}}</code></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

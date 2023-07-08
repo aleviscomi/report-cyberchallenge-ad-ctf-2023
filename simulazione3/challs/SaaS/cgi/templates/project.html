@@ -1,0 +1,96 @@
+{% from 'bootstrap/form.html' import render_form %}
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">{{g.project.name}}</h4>
+        </div>
+        <div class="card-body">
+
+
+          <h4 class="font-weight-normal">Upload new file</h4>
+
+          <button onclick="show_form()">Upload</button> a file
+
+          <div id="create-form" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Upload a shellcode (max 100 bytes)</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>{{ render_form(form) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="mt-3 font-weight-normal">Search uploaded files</h4>
+
+          <div class="mt-1">
+            <input type="text" class="form-95" id="search_file" placeholder="filename">
+          </div>
+
+          <ol class="mt-3" id="found">
+
+          </ol>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+{{ bootstrap.load_js() }}
+<script src="/static/modal.js"></script>
+<script>
+
+
+  let filename_to_uuid = {
+  {% for f in g.project.files %}
+  "{{f.filename}}": "{{f.uid}}",
+    {% endfor %}
+  };
+
+  function search_files() {
+    $.ajax({
+      type: 'POST',
+      url: '/api/search/{{ g.project.project_id }}/',
+      data: JSON.stringify({ search: $('#search_file').val() }),
+      success: function (data) {
+        console.log('found', data);
+        $('#found').empty();
+        if (data['result'] && data['files'] && data['result'] === 'ok') {
+          for (let file of data['files']) {
+            $('#found').append(
+              $('<li></li>').append(
+                "<a href='/project/{{ g.project.project_id }}/file/" + filename_to_uuid[file] + "'>" + file + '</a>'
+              )
+            );
+          }
+        }
+      },
+      contentType: 'application/json',
+      dataType: 'json'
+    });
+  }
+
+
+  search_files(); $('#search_file').on('keyup', search_files);
+
+</script>
+{% endblock %}
