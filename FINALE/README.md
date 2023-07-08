@@ -31,6 +31,98 @@ Al termine della gara questi risultati non sono variati di molto (4 attaccanti p
 ## GadgetHorse-2
 
 ## MineCClicker
+MineCClicker è una challenge della categoria pwn. E' una versione di prato fiorito. Viene fornito tramite un binario in C che rappresenta i server e un client scritto in Python. Il  servizio permetteva di fare le seguenti operazioni:
+
+- Registrarsi e fare il login.
+- Creare un boardgame: Nome, Secret(In questo campo sono messe le flag per i giochi forniti dal game server), seed, grandezza, numero di bombe
+- Caricare una board
+- Giocare alla board caricata.
+
+![Gatto carino](imgs/giochino.png)
+
+Ogni volta che un utente gioca una partita, le bombe vengono posizionate all'interno del tabellone in mod casuale, utilizzando due numeri come seme:
+- Il seme scelto dal creatore della board.
+- Un nuovo numero casuale fornito al giocatore.
+
+
+I creatori del tabellone conoscono entrambi i semi, quindi possono rigenerare la disposizione casuale delle bombe e vincere sempre.
+
+![Gatto carino](imgs/due.png)
+
+
+Durante una partita, quando un utente trova la disposizione corretta delle bombe, vince la partita e ottiene il segreto.
+
+Le flag sono memorizzate nel campo segreto di alcune board specifiche, create dal verificatore.
+
+# Vulnerabilità - Giocare per sempre
+Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false.
+
+Le exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
+- Scoprire celle casuali fino a trovare una bomba
+- Leggere la disposizione delle bombe
+- Inviare l'intera disposizione delle bombe al server e vincere la partita.
+
+La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecit al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
+
+![Gatto carino](imgs/exploit.png)
+
+La prima riga serve a prelevare il nome della board:
+
+![Gatto carino](imgs/riga_uno.png)
+
+La seconda riga, utilizzando le funzioni di utilità fornite dal client, inizializza una connessione con il server della macchina fornita in input:
+
+![Gatto carino](imgs/riga_due.png)
+
+La terza riga genera uno username casuale lungo 10 caratteri:
+
+![Gatto carino](imgs/riga_tre.png)
+
+La quarta riga genera una password casuale lungo 10 caratteri:
+
+![Gatto carino](imgs/riga_quattro.png)
+
+La riga cinque fa la registrazione dell'utente al server:
+
+![Gatto carino](imgs/riga_cinque.png)
+
+La riga sei fa il login alla piattraforma:
+
+![Gatto carino](imgs/riga_sei.png)
+
+La riga 7 carica la board:
+
+![Gatto carino](imgs/riga_sette.png)
+
+La riga 8,9 e 10 servono ad avviare il gioco con la board:
+
+![Gatto carino](imgs/riga_otto.png)
+
+Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituiscela la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
+
+![Gatto carino](imgs/restanti.png)
+
+Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere le flag.
+
+Per avviare l'exploit c'è bisogno di tutta la cartella client dato che utilizza le classi di utilità fornite per il client Python.
+
+# Patch
+
+Modificare il binario per reimpostare correttamente la variabile globale g_is_playing su false all'interno della funzione uncover, nel caso in cui si becca una.
+
+![Gatto carino](imgs/patch.png)
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## CheesyCheats
 CheesyCheat è un’applicazione che si configura come shop di trucchi per videogiochi. Tramite un client messo a disposizione dal sistema di gioco è possibile vedere e comprare trucchi.
