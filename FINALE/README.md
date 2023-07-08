@@ -24,7 +24,37 @@ al momento del freeze della classifica (-2 ore), solo 1 team (su 42) era riuscit
 
 Al termine della gara questi risultati non sono variati di molto (4 attaccanti per CheesyCheats-1, 7 per CheesyCheats-2 e 6 per GabibbiTowers-1).
 
-## GabibbiTowers-2
+## GabbiTowers
+_Categoria: crypto_
+
+Gabibbi Tower è una piattaforma di gioco con ricompense.
+Il gioco proposto consiste in due torri composte da caselle blu o rosse.
+In cima alle torri ci sono due gabibbi, rispettivamente uno per ogni torre. La piattaforma fornisce due pulsanti: "blu" e "rosso".
+Cliccando sul pulsante blu (o rosso), i gabibbi posizionati su una casella blu (o rossa) passano alla casella sottostante. Il gioco è considerato vinto se il gabibbi finiscono contemporaneamente le caselle a disposizione.
+Le funzionalità messe a disposizione dalla piattaforma sono: registrazione, login, creazione una configurazione di gioco, disputa di una partita.
+
+### GabibbiTowers-1
+Per poter accedere alla prima vulnerabilità bisogna vincere una partita al gioco fornito dalla piattaforma. La vittoria fornisce un ticket. Con tre ticket si può richiedere la flag (un ticket può essere utilizzato per generare altri ticket). A fine giornata, il team ha provato a far arrivare i gabibbi insieme alla fine delle torri tramite algoritmi iterativi o di backtracking ma la stanchezza ha avuto la meglio e non si è riusciti a trovare una soluzione allo stesso tempo veloce e sempre funzionante.
+
+
+### GabibbiTowers-2
+
+#### Vulnerabilità - Incorrect Password Check
+Analizzando il modulo storage abbiamo notato che esso presenta una vulnerabilità nel controllo della password.
+I caratteri confrontati con quelli della password dell'utente sono, infatti, i primi n caratteri della stessa (con n = len della password inserita).
+Per rompere la funzione di login, quindi, sarebbe bastato inviare una password vuota.
+
+![gabibbi 2](imgs/gabibbi2.png)
+
+####Exploit
+Quando è stato scritto l'exploit, tuttavia, si è pensato che una password vuota sarebbe stata l'attacco più ovvio (troppo facile da patchare).
+Si è deciso, quindi, di provare ad indovinare il primo carattere della password, per non ricadere nel caso banale. Indovinare, in informatica, significa bruteforce:
+
+![gabibbi 2](imgs/gabibbi2_exploit.png)
+
+####Patch
+La patch per questo servizio prevede che la comparazione non sia fatta sui primi n caratteri della stringa ma su tutta la stringa. Bisogna quindi sostituire strlen(pass) con strlen(user.password)
+
 
 ## GadgetHorse-1
 
@@ -95,16 +125,15 @@ Durante una partita, quando un utente trova la disposizione corretta delle bombe
 
 Le flag sono memorizzate nel campo segreto di alcune board specifiche, create dal verificatore.
 
-### Vulnerabilità - Giocare per sempre
-Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false, e quindi permette di continuare a giocare anche se si è persa la partita.
+# Vulnerabilità - Giocare per sempre
+Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false.
 
-### Exploit
-L'exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
+Le exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
 - Scoprire celle casuali fino a trovare una bomba
 - Leggere la disposizione delle bombe
 - Inviare l'intera disposizione delle bombe al server e vincere la partita.
 
-La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecita al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
+La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecit al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
 
 ![Gatto carino](imgs/exploit.png)
 
@@ -140,15 +169,15 @@ La riga 8,9 e 10 servono ad avviare il gioco con la board:
 
 ![Gatto carino](imgs/riga_otto.png)
 
-Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituisce la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
+Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituiscela la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
 
 ![Gatto carino](imgs/restanti.png)
 
-Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere molte flag.
+Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere le flag.
 
 Per avviare l'exploit c'è bisogno di tutta la cartella client dato che utilizza le classi di utilità fornite per il client Python.
 
-### Patch
+# Patch
 
 Modificare il binario per reimpostare correttamente la variabile globale g_is_playing su false all'interno della funzione uncover, nel caso in cui si becca una.
 
@@ -156,7 +185,19 @@ Modificare il binario per reimpostare correttamente la variabile globale g_is_pl
 
 
 
+
+
+
+
+
+
+
+
+
+
 ## CheesyCheats
+_Categorie: web/crypto/misc_
+
 CheesyCheat è un’applicazione che si configura come shop di trucchi per videogiochi. Tramite un client messo a disposizione dal sistema di gioco è possibile vedere e comprare trucchi.
 Inoltre, una parte dell’applicazione espone una VM che esegue codice nel linguaggio esoterico “Brain Fuck”.
 La tecnologia alla base dell’applicazione è il framework gRPC: un framework di chiamate di procedura remota ad alte prestazioni open source multipiattaforma creato da Google.
@@ -167,17 +208,4 @@ La sezione API, come da prassi, tutte le funzioni per far funzionare correttamen
 
 ![architettura](./imgs/CheesyCheat0.png)
 
-Nella sezione flagIds della piattaforma di gioco era presente l’username di un utente. Questo ci fa capire che, probabilmente, bisognerà accedere al suo account.
-
-### Vulnerabilità - Login Bypass
-
-La vulnerabilità legata a questo indizio consiste nel processo di autenticazione.
-Questo si basa su un protocollo che ricorda il Diffie Hellman ma che non funziona allo stesso modo. Questo, infatti, serve a generare una di una chiave di autenticazione che sia legata alla password dell’utente e che sia uguale sia sul client che sul server. Il problema sorge nel modo di generare la chiave. K, infatti, è definita come:
-
-_K = pow(int(request.g_a, 16), b, utils.p)_
-
-E, impostando g_a uguale a 0, si ottiene K=0.
-
-La mitigazione a questo errore la si ottiene imponendo che g_a non debba ricadere nei casi banali dell’elevamento a potenza.
-
-**Nell’analisi di questa challenge è bene specificare che, a causa dell’utilizzo del framework gRPC, i pcap non sono decifrabili in maniera tradizionale. Quindi ricostruire un attacco è pressocché infattibile allo stato dell’arte.**
+**Nell’analisi di questa challenge è bene specificare che, a causa dell’utilizzo del framework gRPC, i pcap non sono decifrabili in maniera tradizionale. Ricostruire un attacco è pressocché infattibile allo stato dell’arte.**
