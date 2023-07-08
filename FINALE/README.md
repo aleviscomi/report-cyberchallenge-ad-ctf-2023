@@ -28,6 +28,47 @@ Al termine della gara questi risultati non sono variati di molto (4 attaccanti p
 
 ## GadgetHorse-1
 
+GadgetHorse è un'applicazione web, sviluppata col framework SvelteKit, che funge da e-commerce di sticker e magliette con stampe. 
+
+![alt text](imgs/gadgethorse1.png)
+
+Essa mette a disposizione alcune funzionalità come registrazione e login di utenti, acquisto di sticker predefiniti e creazione e acquisto di sticker e maglie personalizzate.
+
+### Vulnerabilità - Unsigned Cookie
+
+Questo primo flag store relativo a GadgetHorse, soffre di una vulnerabilità relativa al cookie del carrello. Lo stato del carrello veniva infatti memorizzato all'interno di un json, a sua volta salvato in un cookie che però non era firmato. Esso veniva solamente codificato in base64.
+
+![alt text](imgs/gh1-cartcookie.png)
+
+### Exploit
+
+L'exploit costruito consisteva quindi nel creare un cookie custom del carrello inserendo un particolare id e trovando la flag nel prodotto - relativo a questo id - inserito nel carrello. Di seguito vediamo l'exploit nel dettaglio.
+
+Inizialmente, per generare un po' di rumore e provare a confondere i teams avversari è stata prevista la registrazione di un utente random:
+
+![alt text](imgs/register_gh.png)
+
+In seguito, preso un determinato flagId, si considerava il "productId" lì presente, memorizzandolo nella variabile prodotto:
+
+![alt text](imgs/gh_productid.png)
+
+e si costruiva una lista, codificata in base64, relativa al carrello:
+
+![alt text](imgs/gh_cartcookie.png)
+
+a questo punto bastava fare una richiesta all'endpoint "/cart" con i cookies relativi a carrello e sessione e si trovava la flag:
+
+![alt text](imgs/gh_flag.png)
+
+### Patch
+
+Per fixare questa vulnerabilità la soluzione ideale sarebbe stata quella di firmare il cookie del carrello. Tuttavia, per questioni di semplicità e velocità, (necessarie in questo tipo di competizione), la patch adottata è stata molto più semplice ma comunque altamente efficace. 
+
+La soluzione attuata infatti prevedeva di rinominare il nome del cookie da "cart" a "cartone". Essa, come detto, si è rilevata una patch altamente efficace in quanto ci ha portato a non perdere alcuna flag su questo servizio. Questo perché tutti gli exploit consistevano nel prelevare i dati dal cookie denominato "cart", che però noi non fornivamo. Ovviamente, questa soluzione non ha dato fastidio al gameserver che, simulando i comportamenti legittimi, non aveva necessità di andare a considerare il cookie.
+
+![alt text](imgs/gh1_patch.png)
+
+
 ## GadgetHorse-2
 
 ## MineCClicker
@@ -54,15 +95,16 @@ Durante una partita, quando un utente trova la disposizione corretta delle bombe
 
 Le flag sono memorizzate nel campo segreto di alcune board specifiche, create dal verificatore.
 
-# Vulnerabilità - Giocare per sempre
-Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false.
+### Vulnerabilità - Giocare per sempre
+Quando un utente scopre una cella e trova una bomba, il gioco dovrebbe terminare, ma il server non reimposta correttamente la variabile globale g_is_playing a false, e quindi permette di continuare a giocare anche se si è persa la partita.
 
-Le exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
+### Exploit
+L'exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
 - Scoprire celle casuali fino a trovare una bomba
 - Leggere la disposizione delle bombe
 - Inviare l'intera disposizione delle bombe al server e vincere la partita.
 
-La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecit al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
+La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecita al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
 
 ![Gatto carino](imgs/exploit.png)
 
@@ -98,29 +140,19 @@ La riga 8,9 e 10 servono ad avviare il gioco con la board:
 
 ![Gatto carino](imgs/riga_otto.png)
 
-Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituiscela la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
+Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituisce la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
 
 ![Gatto carino](imgs/restanti.png)
 
-Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere le flag.
+Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere molte flag.
 
 Per avviare l'exploit c'è bisogno di tutta la cartella client dato che utilizza le classi di utilità fornite per il client Python.
 
-# Patch
+### Patch
 
 Modificare il binario per reimpostare correttamente la variabile globale g_is_playing su false all'interno della funzione uncover, nel caso in cui si becca una.
 
 ![Gatto carino](imgs/patch.png)
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -136,6 +168,8 @@ La sezione API, come da prassi, tutte le funzioni per far funzionare correttamen
 ![architettura](./imgs/CheesyCheat0.png)
 
 Nella sezione flagIds della piattaforma di gioco era presente l’username di un utente. Questo ci fa capire che, probabilmente, bisognerà accedere al suo account.
+
+### Vulnerabilità - Login Bypass
 
 La vulnerabilità legata a questo indizio consiste nel processo di autenticazione.
 Questo si basa su un protocollo che ricorda il Diffie Hellman ma che non funziona allo stesso modo. Questo, infatti, serve a generare una di una chiave di autenticazione che sia legata alla password dell’utente e che sia uguale sia sul client che sul server. Il problema sorge nel modo di generare la chiave. K, infatti, è definita come:
