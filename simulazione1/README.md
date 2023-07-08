@@ -1,4 +1,4 @@
-##MOOZ
+## MOOZ
 
 Mooz è una piattaforma per lo scambio di messaggi. 
 Un utente può:
