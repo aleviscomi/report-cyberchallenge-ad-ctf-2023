@@ -1,6 +1,6 @@
 # Simulazione 0
 
-Prima simulazione in formato Attack/Defense svolta il 19 e 20 maggio per l'addestramento previsto dal percorso CyberChallengeIT.
+Pre-simulazione in formato Attack/Defense svolta il 19 e 20 maggio per l'addestramento previsto dal percorso CyberChallengeIT.
 
 I servizi qui proposti erano:
 * ilBonus

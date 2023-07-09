@@ -140,8 +140,9 @@ def list_optional():
         })
     return ris
 
-def get_single_optional(ID):
+def get_single_optional(ID, username=None):
     if ID is None: return None
+
     
     conn = get_db_connection()
     with conn:
@@ -151,6 +152,9 @@ def get_single_optional(ID):
         return None
     
     _, owner, type, instructions, password, ts = optional
+
+    if username is not None and owner != username:
+        return None
 
     return {
         'ID': ID,
