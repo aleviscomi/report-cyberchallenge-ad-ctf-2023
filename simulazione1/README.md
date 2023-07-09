@@ -1,4 +1,5 @@
 ## MOOZ
+_Categoria: crypto_
 
 Mooz è una piattaforma per lo scambio di messaggi. 
 Un utente può:
@@ -20,6 +21,7 @@ La vulnerabilità consiste nel non aver nascosto a dovere i dati per la generazi
 La patch trovata prevedeva di inserire un valore errato molto alto in /get_public. In questo modo, non solo non si esponevano informazioni importanti, ma si potevano anche far bloccare gli script avversari più deboli.
 
 ## CCMarket
+_Categoria: pwn_
 
 ![Gatto carino](imgs/logo.png)
 
@@ -29,7 +31,7 @@ CCMarket è una challenge di pwn. In CCmarket dopo aver fatto l'accesso si ha di
 
 
 ### Vulnerabilità - Si può generare un prezzo negativo
-Il problema è che CCMArket da la possibilità di aggiungere sul mercato oggetti che hanno un prezzo negativo. Ci da la possibilità ce quando acquistiamo un oggetto otteniamo soldi invece che perderne.
+Il problema è che CCMarket da la possibilità di aggiungere sul mercato oggetti che hanno un prezzo negativo. In questo modo, quando acquistiamo questi oggetti, i soldi saranno aggiunti anziché essere sottratti.
 
 Viene illustrato l'exploit.
 
