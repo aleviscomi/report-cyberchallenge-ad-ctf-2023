@@ -15,9 +15,12 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
 - ***Lo studente ha contribuito nello sviluppo e/o nello studio di tutto ciò che viene riportato all'interno del JSON sottostante;***
 - ***I servizi che non presentano analisi sono stati studiati da altri componenti del team oppure non sono stati attaccati/difesi.***
 
+---
+
+## Alessandro Viscomi, mat. 235141
 ```json
 {
-    "Alessandro Viscomi, mat. 235141": {
+    "Alessandro Viscomi": {
         "utils": [
             "catture",
             "exploit"
@@ -74,7 +77,72 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
                 "GadgetHorse-2"
             ],
         },
+    },
+}
+```
 
+
+## Daniele Minuto, mat. xxxxxx
+```json
+{
+    "Daniele Minuto": {
+        "simulazione1": {
+            "exploits": [
+
+            ],
+            "patch": [
+
+            ],
+        },
+        "simulazione3": {
+            "exploits": [
+
+            ],
+            "patch": [
+
+            ],
+        },
+        "FINALE": {
+            "exploits": [
+
+            ],
+            "patch": [
+                
+            ],
+        },
+    },
+}
+```
+
+
+## Pasquale Rubino, mat. xxxxxx
+```json
+{
+    "Pasquale Rubino": {
+        "simulazione1": {
+            "exploits": [
+                
+            ],
+            "patch": [
+
+            ],
+        },
+        "simulazione2": {
+            "exploits": [
+
+            ],
+            "patch": [
+
+            ],
+        },
+        "FINALE": {
+            "exploits": [
+
+            ],
+            "patch": [
+                
+            ],
+        },
     }
 }
 ```
