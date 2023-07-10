@@ -71,7 +71,7 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
         "FINALE": {
             "exploits": [
                 "GadgetHorse-1",
-                "GabibbiTowers-1"
+                "GabibbiTowers-1 (tentativo di exploit)"
             ],
             "patch": [
                 "GadgetHorse-2"
