@@ -119,31 +119,31 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
 }
 ```
 
-## Pasquale Rubino, mat. xxxxxx
+## Pasquale Rubino, mat. 235613
 ```json
 {
     "Pasquale Rubino": {
         "simulazione1": {
-            "exploits": [
+            "exploits": ["CCMarket"
                 
             ],
-            "patch": [
+            "patch": ["CCMarket"
 
             ],
         },
         "simulazione2": {
-            "exploits": [
+            "exploits": ["TiCCket"
 
             ],
-            "patch": [
+            "patch": ["TiCCket"
 
             ],
         },
         "FINALE": {
-            "exploits": [
+            "exploits": ["MineCClicker"
 
             ],
-            "patch": [
+            "patch": ["MineCClicker"
                 
             ],
         },
