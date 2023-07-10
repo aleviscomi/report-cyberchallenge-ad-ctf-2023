@@ -82,38 +82,42 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
 ```
 
 
-## Daniele Minuto, mat. xxxxxx
+## Daniele Minuto, mat. 235166
+
 ```json
 {
-    "Daniele Minuto": {
-        "simulazione1": {
-            "exploits": [
-
-            ],
-            "patch": [
-
-            ],
-        },
-        "simulazione3": {
-            "exploits": [
-
-            ],
-            "patch": [
-
-            ],
-        },
-        "FINALE": {
-            "exploits": [
-
-            ],
-            "patch": [
-                
-            ],
-        },
+  "Daniele Minuto": {
+    "simulazione1": {
+      "exploits": [
+        "MOOZ"
+      ],
+      "patch": [
+        "MOOZ"
+      ]
     },
+    "simulazione3": {
+      "exploits": [
+        "SaaS"
+      ],
+      "patch": [
+      ]
+    },
+    "FINALE": {
+      "Challenges analizzate": [
+        "CheesyCheat", 
+        "GabibbiTower1",
+        "GabibbiTower2"
+      ],
+      "exploits": [
+        "GabibbiTowers2"
+      ],
+      "patch": [
+        "GabibbiTowers2"
+      ]
+    }
+  }
 }
 ```
-
 
 ## Pasquale Rubino, mat. xxxxxx
 ```json
