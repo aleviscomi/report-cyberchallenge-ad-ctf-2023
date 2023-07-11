@@ -217,7 +217,7 @@ CApp è un'applicazione web di hosting che offre un sistema operativo chiamato c
 
 ### Vulnerabilità - Path Traversal
 
-Qui il problema individuato, consisteva nel fatto che era possibile accedere a volumi creati da altri utenti tramite path traversal. Nella cartella ".union.", infatti, erano presenti i volumi di tutti gli utenti. In questo modo bastava semplicemente accedere ai volumi degli utenti indicati dal gameserver, leggere i all'interno dei file lì presenti e stampare la flag quando trovata. 
+Qui il problema individuato, consisteva nel fatto che era possibile accedere a volumi creati da altri utenti tramite path traversal. Nella cartella ".union.", infatti, erano presenti i volumi di tutti gli utenti. In questo modo bastava semplicemente accedere ai volumi degli utenti indicati dal gameserver, leggere all'interno dei file lì presenti e stampare la flag quando trovata. 
 
 #### Exploit
 

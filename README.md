@@ -124,27 +124,27 @@ Di seguito si specifica, ai fini dell'ammissione alla prova orale del 26 giugno 
 {
     "Pasquale Rubino": {
         "simulazione1": {
-            "exploits": ["CCMarket"
-                
+            "exploits": [
+                "CCMarket"
             ],
-            "patch": ["CCMarket"
-
+            "patch": [
+                "CCMarket"
             ],
         },
         "simulazione2": {
-            "exploits": ["TiCCket"
-
+            "exploits": [
+                "TiCCket"
             ],
-            "patch": ["TiCCket"
-
+            "patch": [
+                "TiCCket"
             ],
         },
         "FINALE": {
-            "exploits": ["MineCClicker"
-
+            "exploits": [
+                "MineCClicker"
             ],
-            "patch": ["MineCClicker"
-                
+            "patch": [
+                "MineCClicker"
             ],
         },
     }

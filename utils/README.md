@@ -304,7 +304,7 @@ for i in range(len(filters)):
     processes.append(subprocess.Popen(cmd, shell=True))
 ```
 
-Fatto ciò, si fa una sleep per quanto impostato da input e si terminano i processi che eseguono tcpdump in backgroun.
+Fatto ciò, si fa una sleep per quanto impostato da input e si terminano i processi che eseguono tcpdump in background.
 
 ```python
 time.sleep(seconds)
